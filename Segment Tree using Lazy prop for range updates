@@ -13,7 +13,7 @@ class SegmentTreeLazyProp {
         long long mid=(low+high)/2;
         build(2*ind+1,low,mid,arr);
         build(2*ind+2,mid+1,high,arr);
-        seg[ind]=min(seg[2*ind+1],seg[2*ind+2]);
+        seg[ind]=seg[2*ind+1]+seg[2*ind+2];
     }
     void update(long long ind,long long low,long long high,long long l,long long r,long long val){
         // update the previous remaining updates
