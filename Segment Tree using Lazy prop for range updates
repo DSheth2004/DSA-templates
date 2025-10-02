@@ -1,0 +1,78 @@
+class SegmentTreeLazyProp {
+    vector<long long>seg,lazy;
+    public:
+    SegmentTreeLazyProp(long long n){
+        seg.resize(4*n+1);
+        lazy.resize(4*n+1,0);
+    }
+    void build(long long ind,long long low,long long high,vector<long long>&arr){
+        if(low==high){
+            seg[ind]=arr[low];
+            return;
+        }
+        long long mid=(low+high)/2;
+        build(2*ind+1,low,mid,arr);
+        build(2*ind+2,mid+1,high,arr);
+        seg[ind]=min(seg[2*ind+1],seg[2*ind+2]);
+    }
+    void update(long long ind,long long low,long long high,long long l,long long r,long long val){
+        // update the previous remaining updates
+        if(lazy[ind]!=0){
+            seg[ind]+=(high-low+1)*lazy[ind];
+            // check for non leaf nodes
+            if(low!=high){
+                lazy[2*ind+1]+=lazy[ind];
+                lazy[2*ind+2]+=lazy[ind];
+            }
+            lazy[ind]=0;
+        }
+
+        // No overlap
+        // l r low high OR low high l r
+        if(r<low || high<l) return;
+
+        // complete overlap
+        // l low high r
+        if(l<=low && high<=r){
+            seg[ind]+=(high-low+1)*val;
+            // check for non leaf nodes
+            if(low!=high){
+                lazy[2*ind+1]+=val;
+                lazy[2*ind+2]+=val;
+            }
+            return;
+        }
+
+        // partial overlap
+        long long mid=(low+high)/2;
+        update(2*ind+1,low,mid,l,r,val);
+        update(2*ind+2,mid+1,high,l,r,val);
+        seg[ind]=seg[2*ind+1]+seg[2*ind+2];
+    }
+    long long query(long long ind,long long low,long long high,long long l,long long r){
+        // update the previous remaining updates
+        if(lazy[ind]!=0){
+            seg[ind]+=(high-low+1)*lazy[ind];
+            // check for non leaf nodes
+            if(low!=high){
+                lazy[2*ind+1]+=lazy[ind];
+                lazy[2*ind+2]+=lazy[ind];
+            }
+            lazy[ind]=0;
+        }
+
+        // No overlap
+        // l r low high OR low high l r
+        if(r<low || high<l) return 0;
+
+        // complete overlap
+        // l low high r
+        if(l<=low && high<=r) return seg[ind];
+
+        // partial overlap
+        long long mid=(low+high)/2;
+        long long left=query(2*ind+1,low,mid,l,r);
+        long long right=query(2*ind+2,mid+1,high,l,r);
+        return left+right;
+    }
+};
